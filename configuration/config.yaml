@@ -1,0 +1,8 @@
+ # Server Configuration
+ server:
+   port: 8080
+
+# Database Configuration
+ database:
+   user: shahmir
+   password: pickit
