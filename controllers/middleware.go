@@ -2,7 +2,6 @@ package controllers
 
 import (
 	"github.com/dgrijalva/jwt-go"
-	"log"
 	"net/http"
 	"strings"
 )
@@ -10,9 +9,10 @@ import (
 func AuthenticateAndHandle(next http.HandlerFunc) http.HandlerFunc {
 
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		// Our middleware logic goes here...
 		authHeader := r.Header.Get("Authorization")
 
+		// Expecting the authorization token to be present in header with 'Authorization' key
+		// in the  'Bearer <token>' form
 		headerValues := strings.Split(authHeader, " ")
 
 		if len(headerValues) < 2 {
@@ -22,7 +22,7 @@ func AuthenticateAndHandle(next http.HandlerFunc) http.HandlerFunc {
 		}
 
 		tokenValue := headerValues[1]
-		log.Printf("The authorization headers are: %+v", authHeader)
+		//log.Printf("The authorization headers are: %+v", authHeader)
 
 		token, parseErr := jwt.Parse(tokenValue, func(t *jwt.Token) (interface{}, error) {
 			return jwtKey, nil

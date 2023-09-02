@@ -24,35 +24,39 @@ func RegisterUserHandler(client *mongo.Client) http.HandlerFunc {
 		w.Header().Set("content-type", "application/json")
 		var user models.User
 
-		log.Printf("The Header of the request is %+v", r.Header)
-
 		// Reading the request body
-		//_ = json.NewDecoder(r.Body).Decode(&prod)
 		byteData, err := io.ReadAll(r.Body)
 		if err != nil {
 			log.Printf("Error reading from the body: %v", err)
+			w.WriteHeader(http.StatusInternalServerError)
+			return
 		}
 		unmarshalErr := json.Unmarshal(byteData, &user)
 		if unmarshalErr != nil {
 			log.Printf("Error unmarshalling the data: %v", unmarshalErr)
+			w.WriteHeader(http.StatusInternalServerError)
+			return
 		}
 
 		encryptedPassword, err := EncryptPassword(user.Password)
 		if err != nil {
 			log.Printf("Unable to encrypt the password. Err : %v", err)
+			w.WriteHeader(http.StatusInternalServerError)
 			return
 		}
 
 		user.Password = encryptedPassword
 
-		log.Printf("User Created is: %+v", user)
+		//log.Printf("User Created is: %+v", user)
 
 		collection := client.Database("canonical").Collection("users")
 		result, insErr := collection.InsertOne(context.TODO(), user)
 		if insErr != nil {
 			log.Printf("Error inserting the document: %v", insErr)
+			w.WriteHeader(http.StatusInternalServerError)
+			return
 		}
-		log.Printf("Data Inserted successfully: %+v", result)
+		//log.Printf("Data Inserted successfully: %+v", result)
 		json.NewEncoder(w).Encode(result)
 
 	}
@@ -73,6 +77,8 @@ func LoginUserHandler(client *mongo.Client) http.HandlerFunc {
 		byteData, err := io.ReadAll(r.Body)
 		if err != nil {
 			log.Printf("Error reading from the body: %v", err)
+			w.WriteHeader(http.StatusInternalServerError)
+			return
 		}
 
 		unmarshalErr := json.Unmarshal(byteData, &user)
@@ -106,7 +112,7 @@ func LoginUserHandler(client *mongo.Client) http.HandlerFunc {
 			return
 		}
 
-		expirationTime := time.Now().Add(time.Minute * 5)
+		expirationTime := time.Now().Add(time.Hour * 1)
 
 		claims := models.Claims{
 			Username: username,
@@ -126,9 +132,8 @@ func LoginUserHandler(client *mongo.Client) http.HandlerFunc {
 			"token": jwtToken,
 		}
 
-		log.Printf("LOGIN SUCCESSFUL")
 		w.WriteHeader(http.StatusOK)
-		//w.Write([]byte("Login Successful !"))
+		w.Write([]byte("Login Successful !"))
 		json.NewEncoder(w).Encode(respBody)
 	}
 
