@@ -97,7 +97,6 @@ func FetchAllEvents(client *mongo.Client) http.HandlerFunc {
 
 		// fetching the query parameters to create a filter for events based on type
 		queryType := r.URL.Query().Get("type")
-		log.Printf("The query extracted from URL is: %v", queryType)
 
 		// default filter, in case of no 'type' filter provided in the request URL
 		filter := bson.M{}

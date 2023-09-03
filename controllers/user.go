@@ -70,8 +70,6 @@ func LoginUserHandler(client *mongo.Client) http.HandlerFunc {
 		w.Header().Set("content-type", "application/json")
 		var user models.User
 
-		log.Printf("The Header of the request is %+v", r.Header)
-
 		// Reading the request body
 		//_ = json.NewDecoder(r.Body).Decode(&prod)
 		byteData, err := io.ReadAll(r.Body)
